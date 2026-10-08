@@ -1,0 +1,9 @@
+# Generated HTML reports
+reports/*.html
+
+# Temporary files
+*.tmp
+
+# Editor and system files
+.vscode/
+.DS_Store
