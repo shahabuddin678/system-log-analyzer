@@ -6,11 +6,14 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 usage() {
-    echo "Usage: $0 -f <log_file>"
+    echo "Usage:"
+    echo "  $0 -f <log_file>"
+    echo "  $0 --compare <log_file1> <log_file2>"
     echo
     echo "Options:"
-    echo "  -f FILE    Analyze the specified RISC-V test log"
-    echo "  -h         Display this help message"
+    echo "  -f FILE                  Analyze a RISC-V test log"
+    echo "  -h                       Display this help message"
+    echo "  --compare FILE1 FILE2    Compare two RISC-V test logs"
 }
 
 error_exit() {
@@ -65,6 +68,69 @@ analyze_log() {
     echo
     echo "======================================"
 }
+
+compare_logs() {
+    local file1="$1"
+    local file2="$2"
+
+    local passed1
+    local passed2
+    local failed1
+    local failed2
+    local skipped1
+    local skipped2
+
+    passed1=$(grep -c "TEST PASS:" "$file1")
+    passed2=$(grep -c "TEST PASS:" "$file2")
+    failed1=$(grep -c "TEST FAIL:" "$file1")
+    failed2=$(grep -c "TEST FAIL:" "$file2")
+    skipped1=$(grep -c "TEST SKIP:" "$file1")
+    skipped2=$(grep -c "TEST SKIP:" "$file2")
+
+    echo "======================================"
+    echo "          RISC-V LOG COMPARISON"
+    echo "======================================"
+    echo
+    echo "File 1: $file1"
+    echo "Passed : $passed1"
+    echo "Failed : $failed1"
+    echo "Skipped: $skipped1"
+    echo
+    echo "File 2: $file2"
+    echo "Passed : $passed2"
+    echo "Failed : $failed2"
+    echo "Skipped: $skipped2"
+    echo
+    echo "Changes:"
+    echo "Passed : $((passed2 - passed1))"
+    echo "Failed : $((failed2 - failed1))"
+    echo "Skipped: $((skipped2 - skipped1))"
+    echo
+    echo "======================================"
+}
+
+if [[ "$1" == "--compare" ]]; then
+    if [[ $# -ne 3 ]]; then
+        echo "Error: --compare requires two log files." >&2
+        usage
+        exit 2
+    fi
+
+    if [[ ! -f "$2" ]]; then
+        error_exit "File '$2' does not exist."
+    fi
+
+    if [[ ! -f "$3" ]]; then
+        error_exit "File '$3' does not exist."
+    fi
+
+    if [[ ! -r "$2" || ! -r "$3" ]]; then
+        error_exit "One or both files are not readable."
+    fi
+
+    compare_logs "$2" "$3"
+    exit 0
+fi
 
 while getopts ":f:h" option; do
     case "$option" in
