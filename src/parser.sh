@@ -4,7 +4,7 @@ usage() {
     echo "Usage: $0 -f <log_file>"
     echo
     echo "Options:"
-    echo "  -f FILE    Parse the specified log file"
+    echo "  -f FILE    Parse the specified RISC-V test log"
     echo "  -h         Display this help message"
 }
 
@@ -16,12 +16,32 @@ error_exit() {
 parse_log() {
     local logfile="$1"
 
-    echo "Log Analysis"
-    echo "------------"
+    local starts
+    local passed
+    local failed
+    local skipped
+    local errors
 
-    echo "INFO: $(grep -c " INFO " "$logfile")"
-    echo "WARNING: $(grep -c " WARNING " "$logfile")"
-    echo "ERROR: $(grep -c " ERROR " "$logfile")"
+    starts=$(grep -c "TEST START:" "$logfile")
+    passed=$(grep -c "TEST PASS:" "$logfile")
+    failed=$(grep -c "TEST FAIL:" "$logfile")
+    skipped=$(grep -c "TEST SKIP:" "$logfile")
+    errors=$(grep -c " ERROR:" "$logfile")
+
+    echo "RISC-V Test Log Analysis"
+    echo "------------------------"
+    echo "Tests Started : $starts"
+    echo "Tests Passed  : $passed"
+    echo "Tests Failed  : $failed"
+    echo "Tests Skipped : $skipped"
+    echo "Errors        : $errors"
+    echo
+    echo "Failed Tests:"
+    grep "TEST FAIL:" "$logfile" | sed 's/.*TEST FAIL: /- /'
+
+    echo
+    echo "Errors:"
+    grep " ERROR:" "$logfile" | sed 's/.*ERROR: /- /'
 }
 
 while getopts ":f:h" option; do

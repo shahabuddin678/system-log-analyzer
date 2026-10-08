@@ -1,12 +1,15 @@
 #!/bin/bash
 
-set -o pipefail
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
 usage() {
     echo "Usage: $0 -f <log_file>"
     echo
     echo "Options:"
-    echo "  -f FILE    Analyze the specified log file"
+    echo "  -f FILE    Analyze the specified RISC-V test log"
     echo "  -h         Display this help message"
 }
 
@@ -18,25 +21,36 @@ error_exit() {
 analyze_log() {
     local logfile="$1"
 
-    local total_lines
-    local info_count
-    local warning_count
-    local error_count
+    local total
+    local passed
+    local failed
+    local skipped
+    local errors
+    local pass_rate
 
-    total_lines=$(wc -l < "$logfile")
-    info_count=$(grep -c " INFO " "$logfile")
-    warning_count=$(grep -c " WARNING " "$logfile")
-    error_count=$(grep -c " ERROR " "$logfile")
+    total=$(grep -c "TEST \(PASS\|FAIL\|SKIP\):" "$logfile")
+    passed=$(grep -c "TEST PASS:" "$logfile")
+    failed=$(grep -c "TEST FAIL:" "$logfile")
+    skipped=$(grep -c "TEST SKIP:" "$logfile")
+    errors=$(grep -c " ERROR:" "$logfile")
+
+    if [[ "$total" -gt 0 ]]; then
+        pass_rate=$((passed * 100 / total))
+    else
+        pass_rate=0
+    fi
 
     echo "======================================"
-    echo "       SYSTEM LOG ANALYZER"
+    echo "       RISC-V TEST LOG ANALYZER"
     echo "======================================"
     echo
-    echo "Log File         : $logfile"
-    echo "Total Lines      : $total_lines"
-    echo "INFO Messages    : $info_count"
-    echo "WARNING Messages : $warning_count"
-    echo "ERROR Messages   : $error_count"
+    echo "Log File       : $logfile"
+    echo "Total Tests    : $total"
+    echo -e "${GREEN}Passed Tests   : $passed${NC}"
+    echo -e "${RED}Failed Tests   : $failed${NC}"
+    echo -e "${YELLOW}Skipped Tests  : $skipped${NC}"
+    echo -e "${RED}Errors         : $errors${NC}"
+    echo "Pass Rate      : ${pass_rate}%"
     echo
     echo "======================================"
 }
