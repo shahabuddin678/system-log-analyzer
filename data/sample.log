@@ -46,4 +46,8 @@
 [2026-05-01 10:24:28] TEST PASS: rv32i-ori (0.69s)
 [2026-05-01 10:24:28] TEST START: rv32i-xori
 [2026-05-01 10:24:29] TEST PASS: rv32i-xori (0.67s)
+[2026-05-01 10:24:29] TEST START: rv32i-srai
+[2026-05-01 10:24:30] TEST PASS: rv32i-srai (0.71s)
+[2026-05-01 10:24:30] TEST START: rv32i-srli
+[2026-05-01 10:24:31] TEST PASS: rv32i-srli (0.69s)
 [2026-05-01 10:30:12] SUMMARY: 25 tests, 22 passed, 2 failed, 1 skipped

@@ -27,17 +27,26 @@ analyze_log() {
     local skipped
     local errors
     local pass_rate
+    local total_time
+    local average_time
 
-    total=$(grep -c "TEST \(PASS\|FAIL\|SKIP\):" "$logfile")
+    total=$(grep -cE "TEST (PASS|FAIL|SKIP):" "$logfile")
     passed=$(grep -c "TEST PASS:" "$logfile")
     failed=$(grep -c "TEST FAIL:" "$logfile")
     skipped=$(grep -c "TEST SKIP:" "$logfile")
     errors=$(grep -c " ERROR:" "$logfile")
 
+    total_time=$(grep -oE '\([0-9]+(\.[0-9]+)?s\)' "$logfile" |
+        tr -d '()s' |
+        awk '{sum += $1} END {printf "%.2f", sum}')
+
     if [[ "$total" -gt 0 ]]; then
         pass_rate=$((passed * 100 / total))
+        average_time=$(awk -v total="$total_time" -v count="$total" \
+            'BEGIN {printf "%.2f", total / count}')
     else
         pass_rate=0
+        average_time="0.00"
     fi
 
     echo "======================================"
@@ -51,6 +60,8 @@ analyze_log() {
     echo -e "${YELLOW}Skipped Tests  : $skipped${NC}"
     echo -e "${RED}Errors         : $errors${NC}"
     echo "Pass Rate      : ${pass_rate}%"
+    echo "Total Time     : ${total_time}s"
+    echo "Average Time   : ${average_time}s"
     echo
     echo "======================================"
 }
