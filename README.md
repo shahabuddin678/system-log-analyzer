@@ -1,6 +1,6 @@
 # RISC-V Test Log Analyzer
 
-A Bash-based tool for analyzing RISC-V processor test logs.
+A Bash-based RISC-V test log analyzer with HTML reporting.
 
 ## Features
 
@@ -13,6 +13,7 @@ A Bash-based tool for analyzing RISC-V processor test logs.
 - Handles command-line arguments and errors
 - Includes automated tests
 - Provides Makefile commands
+- Supports Git-based development workflow
 
 ## Project Structure
 
