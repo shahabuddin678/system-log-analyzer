@@ -29,19 +29,31 @@ parse_log() {
     errors=$(grep -c " ERROR:" "$logfile")
 
     echo "RISC-V Test Log Analysis"
-    echo "------------------------"
+    echo "========================"
+    echo
     echo "Tests Started : $starts"
     echo "Tests Passed  : $passed"
     echo "Tests Failed  : $failed"
     echo "Tests Skipped : $skipped"
     echo "Errors        : $errors"
     echo
-    echo "Failed Tests:"
-    grep "TEST FAIL:" "$logfile" | sed 's/.*TEST FAIL: /- /'
+
+    echo "Test Results"
+    echo "------------"
+    grep -E "TEST (PASS|FAIL|SKIP):" "$logfile" |
+        sed -E 's/.*TEST (PASS|FAIL|SKIP): ([^ ]+) \(([^)]*)\)/\1 | \2 | \3/'
 
     echo
-    echo "Errors:"
-    grep " ERROR:" "$logfile" | sed 's/.*ERROR: /- /'
+    echo "Failed Tests"
+    echo "------------"
+    grep "TEST FAIL:" "$logfile" |
+        sed -E 's/.*TEST FAIL: ([^ ]+) \(([^)]*)\)/- \1 (\2)/'
+
+    echo
+    echo "Errors"
+    echo "------"
+    grep " ERROR:" "$logfile" |
+        sed 's/.*ERROR: /- /'
 }
 
 while getopts ":f:h" option; do
